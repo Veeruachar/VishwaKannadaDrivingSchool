@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "registrations_data")
 @Data
 public class Registration {
 
@@ -15,8 +16,8 @@ public class Registration {
 	@Column(name = "first_name")
 	private String firstName;
 
-	@Column(name = "last_name")
-	private String lastName;
+	@Column(name = "address")
+	private String address;
 
 	@Column(name = "email")
 	private String email;
@@ -25,8 +26,8 @@ public class Registration {
 	private String phone;
 
 	@Column(name = "course_type")
-	private String courseType; // e.g., 'Basic', 'Advanced', 'Manual'
+	private String courseType;
 
-	// Getters and Setters (omitted for brevity)
-	// You can use Lombok for this or let your IDE generate them
+	@Column(name = "dlnumber")
+	private String dlnumber;
 }
