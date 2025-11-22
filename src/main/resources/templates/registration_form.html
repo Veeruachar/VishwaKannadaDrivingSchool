@@ -12,6 +12,9 @@
 
     <form th:action="@{/register}" th:object="${registration}" method="post">
 
+        <label for="id">Id number:</label>
+        <input type="text" id="id" th:field="*{id}" required>
+
         <label for="firstName">First Name:</label>
         <input type="text" id="firstName" th:field="*{firstName}" required>
 
