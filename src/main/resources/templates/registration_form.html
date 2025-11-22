@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Driving School Registration</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1>Vishwa kannada driving school</h1>
+    <h2>Registration form</h2>
+
+    <form th:action="@{/register}" th:object="${registration}" method="post">
+
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" th:field="*{firstName}" required>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" th:field="*{lastName}" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" th:field="*{email}" required>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" th:field="*{phone}" required>
+
+        <label for="courseType">Select Course:</label>
+        <select id="courseType" th:field="*{courseType}" required>
+            <option value="">-- Choose a Course --</option>
+            <option value="Basic">Basic - 10 Hours</option>
+            <option value="Advanced">Advanced - 20 Hours</option>
+            <option value="Manual">Manual Transmission</option>
+        </select>
+
+        <button type="submit">Submit Registration</button>
+    </form>
+</div>
+</body>
+</html>
