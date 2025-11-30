@@ -29,7 +29,7 @@ public class ExcelExporter {
         font.setFontHeight((short) (16 * 20)); // Set font size
         style.setFont(font);
 
-        String[] headers = {"ID", "First Name", "Last Name", "Email", "Phone", "Course Type","Dl Number"};
+        String[] headers = {"ID", "First Name", "Last Name", "Admission Date", "Phone", "Course Type","Dl Number"};
 
         for (int i = 0; i < headers.length; i++) {
             createCell(row, i, headers[i], style);
@@ -64,7 +64,7 @@ public class ExcelExporter {
             createCell(row, columnCount++, reg.getId(), style);
             createCell(row, columnCount++, reg.getFirstName(), style);
             createCell(row, columnCount++, reg.getAddress(), style);
-            createCell(row, columnCount++, reg.getEmail(), style);
+            createCell(row, columnCount++, reg.getAdmissionDate().toString(), style);
             createCell(row, columnCount++, reg.getPhone(), style);
             createCell(row, columnCount++, reg.getCourseType(), style);
             createCell(row, columnCount++, reg.getDlnumber(), style);

@@ -21,9 +21,6 @@
         <label for="address">Adress:</label>
         <input type="text" id="address" th:field="*{address}" required>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" th:field="*{email}" required>
-
         <label for="phone">Phone Number:</label>
         <input type="tel" id="phone" th:field="*{phone}" required>
 
@@ -36,6 +33,9 @@
 
         <label for="dlnumber">DL number:</label>
         <input type="text" id="dlnumber" th:field="*{dlnumber}" required>
+
+        <label for="admissionDate">Admission Date:</label>
+        <input type="date" id="admissionDate" th:field="*{admissionDate}" required>
 
         <button type="submit">Submit Registration</button>
     </form>

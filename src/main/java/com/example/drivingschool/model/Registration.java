@@ -1,8 +1,10 @@
 package com.example.drivingschool.model;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "registrations_data")
@@ -19,9 +21,6 @@ public class Registration {
 	@Column(name = "address")
 	private String address;
 
-	@Column(name = "email")
-	private String email;
-
 	@Column(name = "phone")
 	private String phone;
 
@@ -30,4 +29,8 @@ public class Registration {
 
 	@Column(name = "dlnumber")
 	private String dlnumber;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Column(name = "admission_date")
+	private LocalDate admissionDate;
 }
