@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Details</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <h1>Student Details</h1>
+
+    <!-- Show alert if student not found -->
+    <div th:if="${errorMessage}">
+        <script th:inline="javascript">
+            alert([[${errorMessage}]]);
+            window.location = '/'; // optional: redirect back to home after alert
+        </script>
+    </div>
+
+    <!-- Show details only if student exists -->
+    <div th:if="${registration != null}">
+        <p><strong>Name:</strong> <span th:text="${registration.firstName}"></span></p>
+        <p><strong>DL Number:</strong> <span th:text="${registration.dlnumber}"></span></p>
+        <p><strong>Phone:</strong> <span th:text="${registration.phone}"></span></p>
+        <p><strong>Course Type:</strong> <span th:text="${registration.courseType}"></span></p>
+        <p><strong>Address:</strong> <span th:text="${registration.address}"></span></p>
+        <p><strong>Admission Date:</strong> <span th:text="${registration.admissionDate}"></span></p>
+
+        <p>
+            <a th:href="@{/student/edit/{id}(id=${registration.id})}">✏️ Edit</a> |
+            <a th:href="@{/student/delete/{id}(id=${registration.id})}">🗑️ Delete</a> |
+            <a th:href="@{/}">⬅️ Back to Home</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

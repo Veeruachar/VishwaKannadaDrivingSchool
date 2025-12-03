@@ -7,9 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -72,5 +70,55 @@ public class RegistrationController {
         // Create the Excel file and write data (see step 3)
         ExcelExporter exporter = new ExcelExporter(registrations);
         exporter.export(response);
+    }
+
+    // 4. Get Particular Student Details
+    // Search by ID
+    @GetMapping("/student/{id}")
+    public String getStudentDetails(@PathVariable("id") Long id, Model model) {
+        Registration registration = registrationRepository.findById(id).orElse(null);
+
+        log.info("Registrations : {}",registration);
+        if (registration == null) {
+            model.addAttribute("errorMessage", "Student with ID " + id + " not found!");
+            return "student_details"; // still return the same page
+        }
+
+        model.addAttribute("registration", registration);
+        return "student_details";
+    }
+
+
+    // 5. Show Update Form
+    @GetMapping("/student/edit/{id}")
+    public String showUpdateForm(@PathVariable("id") Long id, Model model) {
+        Registration registration = registrationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid student Id:" + id));
+        model.addAttribute("registration", registration);
+        return "update_form"; // src/main/resources/templates/update_form.html
+    }
+
+    // 6. Handle Update Submission
+    @PostMapping("/student/update/{id}")
+    public String updateStudent(@PathVariable("id") Long id,
+                                @ModelAttribute("registration") Registration registration) {
+        registration.setId(id); // ensure ID is set
+        registrationRepository.saveAndFlush(registration);
+        return "redirect:/student/" + id;
+    }
+
+    // 7. Delete Student
+    @GetMapping("/student/delete/{id}")
+    public String deleteStudent(@PathVariable("id") Long id,  Model model) {
+        Registration registration = registrationRepository.findById(id).orElse(null);
+
+        if (registration == null) {
+            model.addAttribute("errorMessage", "Student with ID " + id + " not found!");
+            return "student_details"; // still return the same page
+        }
+
+        model.addAttribute("registration", registration);
+        registrationRepository.delete(registration);
+        return "redirect:/"; // back to index after deletion
     }
 }

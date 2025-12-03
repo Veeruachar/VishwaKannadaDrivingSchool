@@ -40,7 +40,16 @@
         <li>
             <a th:href="@{/export/excel}">📊 Download All Registrations (Excel)</a>
         </li>
+
     </ul>
+    <h2>Search Student by ID</h2>
+    <form id="searchForm" onsubmit="event.preventDefault();
+    window.location='/student/' + document.getElementById('id').value;">
+        <label for="id">Enter Student ID:</label>
+        <input type="number" id="id" required>
+        <button type="submit">Search</button>
+    </form>
+
 </div>
 </body>
 </html>

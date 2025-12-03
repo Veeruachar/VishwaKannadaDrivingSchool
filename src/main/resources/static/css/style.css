@@ -66,3 +66,121 @@ button[type="submit"]:hover {
     color: #28a745;
     font-size: 1.2em;
 }
+
+/* --- Student Details Page --- */
+.student-details {
+    margin-top: 20px;
+}
+
+.student-details p {
+    margin: 10px 0;
+    font-size: 1em;
+    color: #444;
+}
+
+.student-details strong {
+    color: #0056b3;
+}
+
+/* Action links (Edit, Delete, Back) */
+.student-actions a {
+    display: inline-block;
+    margin: 10px 8px 0 0;
+    padding: 10px 18px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.student-actions a:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Delete button styled differently */
+.student-actions a.delete {
+    background-color: #dc3545;
+}
+
+.student-actions a.delete:hover {
+    background-color: #a71d2a;
+}
+
+/* --- Update Form Page --- */
+.update-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #555;
+}
+
+.update-form input[type="text"],
+.update-form input[type="email"],
+.update-form input[type="tel"],
+.update-form input[type="number"],
+.update-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.update-form input:focus,
+.update-form select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.update-form button[type="submit"] {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.update-form button[type="submit"]:hover {
+    background-color: #218838;
+}
+
+form {
+    margin: 15px 0;
+    text-align: center;
+}
+
+form label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+form input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
