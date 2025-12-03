@@ -1,3 +1,3 @@
 # VishwaKannadaDrivingSchool
-** vidhwakannada driving school manvi **
+** vishwakannada driving school manvi **
 ** prop: doddanagouda**
