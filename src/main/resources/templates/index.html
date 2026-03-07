@@ -13,7 +13,7 @@
         .actions-list li {
             margin-bottom: 20px;
         }
-        .actions-list a {
+        .actions-list a, .logout-btn {
             display: inline-block;
             padding: 15px 30px;
             background-color: #007bff;
@@ -22,34 +22,72 @@
             border-radius: 6px;
             font-size: 1.1em;
             transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
         }
         .actions-list a:hover {
             background-color: #0056b3;
+        }
+        .logout-section {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            text-align: center;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+        }
+        .logout-btn:hover {
+            background-color: #a71d2a;
+        }
+        .search-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Welcome to Vishwa Kannada Driving School Portal</h1>
-    <p>Choose an action below:</p>
+    <h1>Vishwa Kannada Driving School</h1>
+    <p style="text-align: center;">Welcome, <strong>Admin</strong>!</p>
 
     <ul class="actions-list">
         <li>
             <a th:href="@{/register}">✍️ Student Registration</a>
         </li>
         <li>
-            <a th:href="@{/export/excel}">📊 Download All Registrations (Excel)</a>
+            <a th:href="@{/export/excel}">📊 Download All (Excel)</a>
         </li>
-
     </ul>
-    <h2>Search Student by ID</h2>
-    <form id="searchForm" onsubmit="event.preventDefault();
-    window.location='/student/' + document.getElementById('id').value;">
-        <label for="id">Enter Student ID:</label>
-        <input type="number" id="id" required>
-        <button type="submit">Search</button>
-    </form>
 
+    <div class="search-section">
+        <h2>Search Student by ID</h2>
+        <form id="searchForm" onsubmit="searchStudent(event)">
+            <input type="number" id="studentId" placeholder="Enter Student ID" required
+                   style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;">
+            <button type="submit" class="logout-btn" style="background-color: #28a745;">🔍 Search</button>
+        </form>
+    </div>
+
+    <div class="logout-section">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">🚪 Secure Logout</button>
+        </form>
+    </div>
 </div>
+
+<script>
+    function searchStudent(event) {
+        event.preventDefault();
+        const id = document.getElementById('studentId').value;
+        if (id) {
+            window.location.href = '/student/' + id;
+        }
+    }
+</script>
 </body>
 </html>

@@ -8,3 +8,14 @@ CREATE TABLE driving_school_db.registrations_data (
     admission_date DATE NOT NULL,
     profile_image LONGBLOB
 );
+
+
+
+CREATE TABLE driving_school_db.users (
+                                         id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                                         username VARCHAR(255) NOT NULL UNIQUE,
+                                         password VARCHAR(255) NOT NULL
+);
+
+
+INSERT INTO driving_school_db.users (username, password) VALUES ('admin', 'Imadmin');
