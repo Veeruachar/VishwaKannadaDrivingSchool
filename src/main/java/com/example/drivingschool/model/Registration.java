@@ -33,4 +33,9 @@ public class Registration {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "admission_date")
 	private LocalDate admissionDate;
+
+	// New field for storing the profile image as binary data
+	@Lob
+	@Column(name = "profile_image", columnDefinition = "LONGBLOB")
+	private byte[] profileImage;
 }

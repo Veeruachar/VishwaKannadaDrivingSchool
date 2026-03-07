@@ -5,5 +5,6 @@ CREATE TABLE driving_school_db.registrations_data (
     phone VARCHAR(255),
     course_type VARCHAR(255),
     dlnumber VARCHAR(255),
-    admission_date DATE NOT NULL
+    admission_date DATE NOT NULL,
+    profile_image LONGBLOB
 );

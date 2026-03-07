@@ -8,32 +8,37 @@
 <body>
 <div class="container">
   <h1>Update Student</h1>
-  <form th:action="@{/student/update/{id}(id=${registration.id})}" th:object="${registration}" method="post">
-    <form th:action="@{/register}" th:object="${registration}" method="post">
-      <label for="firstName">First Name:</label>
-      <input type="text" id="firstName" th:field="*{firstName}" required>
 
-      <label for="address">Adress:</label>
-      <input type="text" id="address" th:field="*{address}" required>
+  <form th:action="@{/student/update/{id}(id=${registration.id})}" th:object="${registration}" method="post" enctype="multipart/form-data">
 
-      <label for="phone">Phone Number:</label>
-      <input type="tel" id="phone" th:field="*{phone}" required>
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" th:field="*{firstName}" required>
 
-      <label for="courseType">Select Course:</label>
-      <select id="courseType" th:field="*{courseType}" required>
-        <option value="">-- Choose a Course --</option>
-        <option value="Regular">30 Days</option>
-        <option value="Other">Other</option>
-      </select>
+    <label for="address">Adress:</label>
+    <input type="text" id="address" th:field="*{address}" required>
 
-      <label for="dlnumber">DL number:</label>
-      <input type="text" id="dlnumber" th:field="*{dlnumber}" required>
+    <label for="phone">Phone Number:</label>
+    <input type="tel" id="phone" th:field="*{phone}" required>
 
-      <label for="admissionDate">Admission Date:</label>
-      <input type="date" id="admissionDate" th:field="*{admissionDate}" required>
+    <label for="courseType">Select Course:</label>
+    <select id="courseType" th:field="*{courseType}" required>
+      <option value="">-- Choose a Course --</option>
+      <option value="Regular">30 Days</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label for="dlnumber">DL number:</label>
+    <input type="text" id="dlnumber" th:field="*{dlnumber}" required>
+
+    <label for="admissionDate">Admission Date:</label>
+    <input type="date" id="admissionDate" th:field="*{admissionDate}" required>
+
+    <label for="imageFile">Update Profile Picture (Optional):</label>
+    <input type="file" id="imageFile" name="imageFile" accept="image/*">
 
     <button type="submit">Update</button>
   </form>
+  <p style="text-align: center;"><a th:href="@{/student/{id}(id=${registration.id})}">Cancel</a></p>
 </div>
 </body>
 </html>

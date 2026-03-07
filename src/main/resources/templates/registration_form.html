@@ -10,7 +10,7 @@
     <h1>Vishwa kannada driving school</h1>
     <h2>Registration form</h2>
 
-    <form th:action="@{/register}" th:object="${registration}" method="post">
+    <form th:action="@{/register}" th:object="${registration}" method="post" enctype="multipart/form-data">
 
         <label for="id">Id number:</label>
         <input type="text" id="id" th:field="*{id}" required>
@@ -36,6 +36,9 @@
 
         <label for="admissionDate">Admission Date:</label>
         <input type="date" id="admissionDate" th:field="*{admissionDate}" required>
+
+        <label for="imageFile">Profile Picture:</label>
+        <input type="file" id="imageFile" name="imageFile" accept="image/*">
 
         <button type="submit">Submit Registration</button>
     </form>
