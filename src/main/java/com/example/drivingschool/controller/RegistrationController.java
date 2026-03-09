@@ -67,11 +67,11 @@ public class RegistrationController {
     }
 
     @GetMapping("/student/{id}")
-    public String getStudentDetails(@PathVariable("id") Long id, Model model) {
-        Registration registration = registrationRepository.findById(id).orElse(null);
+    public String getStudentDetails(@PathVariable("id") String phone, Model model) {
+        Registration registration = registrationRepository.findByPhone(phone).orElse(null);
 
         if (registration == null) {
-            model.addAttribute("errorMessage", "Student with ID " + id + " not found!");
+            model.addAttribute("errorMessage", "Student with phone " + phone + " not found!");
             return "student_details";
         }
 

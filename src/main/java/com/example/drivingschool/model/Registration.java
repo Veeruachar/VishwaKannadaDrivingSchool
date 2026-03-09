@@ -4,6 +4,8 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Entity
@@ -22,6 +24,8 @@ public class Registration {
 	private String address;
 
 	@Column(name = "phone")
+	@NotBlank(message = "Phone number is required")
+	@Pattern(regexp = "^\\d{10}$", message = "Phone number must be 10 digits")
 	private String phone;
 
 	@Column(name = "course_type")

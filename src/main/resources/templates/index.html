@@ -67,7 +67,12 @@
     <div class="search-section">
         <h2>Search Student by ID</h2>
         <form id="searchForm" onsubmit="searchStudent(event)">
-            <input type="number" id="studentId" placeholder="Enter Student ID" required
+            <input type="tel"
+                   id="studentPhone"
+                   placeholder="Enter 10-digit Phone Number"
+                   pattern="[0-9]{10}"
+                   title="Please enter a 10-digit phone number"
+                   required
                    style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;">
             <button type="submit" class="logout-btn" style="background-color: #28a745;">🔍 Search</button>
         </form>
