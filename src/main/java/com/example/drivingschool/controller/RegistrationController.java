@@ -101,7 +101,7 @@ public class RegistrationController {
         // Fetch existing record to retain image if no new one is uploaded
         Registration existingRecord = registrationRepository.findByPhone(phone).orElseThrow();
 
-        registration.setPhone(phone);
+        registration.setId(existingRecord.getId());
 
         if (!imageFile.isEmpty()) {
             registration.setProfileImage(imageFile.getBytes());
