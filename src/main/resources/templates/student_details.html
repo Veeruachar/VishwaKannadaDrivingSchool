@@ -33,8 +33,8 @@
         <p><strong>Admission Date:</strong> <span th:text="${registration.admissionDate}"></span></p>
 
         <div class="student-actions" style="margin-top: 20px; text-align: center;">
-            <a th:href="@{/student/edit/{id}(id=${registration.id})}">✏️ Edit</a>
-            <a th:href="@{/student/delete/{id}(id=${registration.id})}"
+            <a th:href="@{/student/edit/{phone}(phone=${registration.phone})}">✏️ Edit</a>
+            <a th:href="@{/student/delete/{phone}(phone=${registration.phone})}"
                style="background-color: #dc3545;"
                onclick="return confirm('Are you sure you want to delete this record?')">🗑️ Delete</a>
             <br><br>
