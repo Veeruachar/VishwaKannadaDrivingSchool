@@ -66,8 +66,8 @@ public class RegistrationController {
         exporter.export(response);
     }
 
-    @GetMapping("/student/{id}")
-    public String getStudentDetails(@PathVariable("id") String phone, Model model) {
+    @GetMapping("/student/{phone}")
+    public String getStudentDetails(@PathVariable("phone") String phone, Model model) {
         Registration registration = registrationRepository.findByPhone(phone).orElse(null);
 
         if (registration == null) {
