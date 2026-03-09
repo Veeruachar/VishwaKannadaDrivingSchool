@@ -9,7 +9,7 @@
 <div class="container">
   <h1>Update Student</h1>
 
-  <form th:action="@{/student/update/{id}(id=${registration.id})}" th:object="${registration}" method="post" enctype="multipart/form-data">
+  <form th:action="@{/student/update/{phone}(phone=${registration.phone})}" th:object="${registration}" method="post" enctype="multipart/form-data">
 
     <label for="firstName">First Name:</label>
     <input type="text" id="firstName" th:field="*{firstName}" required>
@@ -38,7 +38,7 @@
 
     <button type="submit">Update</button>
   </form>
-  <p style="text-align: center;"><a th:href="@{/student/{id}(id=${registration.id})}">Cancel</a></p>
+  <p style="text-align: center;"><a th:href="@{/student/{phone}(phone=${registration.phone})}">Cancel</a></p>
 </div>
 </body>
 </html>

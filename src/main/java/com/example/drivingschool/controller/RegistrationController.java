@@ -85,23 +85,23 @@ public class RegistrationController {
         return "student_details";
     }
 
-    @GetMapping("/student/edit/{id}")
-    public String showUpdateForm(@PathVariable("id") Long id, Model model) {
-        Registration registration = registrationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid student Id:" + id));
+    @GetMapping("/student/edit/{phone}")
+    public String showUpdateForm(@PathVariable("phone") String phone, Model model) {
+        Registration registration = registrationRepository.findByPhone(phone)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid student Id:" + phone));
         model.addAttribute("registration", registration);
         return "update_form";
     }
 
-    @PostMapping("/student/update/{id}")
-    public String updateStudent(@PathVariable("id") Long id,
+    @PostMapping("/student/update/{phone}")
+    public String updateStudent(@PathVariable("phone") String phone,
                                 @ModelAttribute("registration") Registration registration,
                                 @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
 
         // Fetch existing record to retain image if no new one is uploaded
-        Registration existingRecord = registrationRepository.findById(id).orElseThrow();
+        Registration existingRecord = registrationRepository.findByPhone(phone).orElseThrow();
 
-        registration.setId(id);
+        registration.setPhone(phone);
 
         if (!imageFile.isEmpty()) {
             registration.setProfileImage(imageFile.getBytes());
@@ -111,15 +111,15 @@ public class RegistrationController {
         }
 
         registrationRepository.saveAndFlush(registration);
-        return "redirect:/student/" + id;
+        return "redirect:/student/" + phone;
     }
 
-    @GetMapping("/student/delete/{id}")
-    public String deleteStudent(@PathVariable("id") Long id, Model model) {
-        Registration registration = registrationRepository.findById(id).orElse(null);
+    @GetMapping("/student/delete/{phone}")
+    public String deleteStudent(@PathVariable("phone") String phone, Model model) {
+        Registration registration = registrationRepository.findByPhone(phone).orElse(null);
 
         if (registration == null) {
-            model.addAttribute("errorMessage", "Student with ID " + id + " not found!");
+            model.addAttribute("errorMessage", "Student with Phone " + phone + " not found!");
             return "student_details";
         }
 
