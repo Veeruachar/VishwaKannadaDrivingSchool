@@ -3,6 +3,7 @@ package com.example.drivingschool.controller;
 import com.example.drivingschool.model.Registration;
 import com.example.drivingschool.repository.RegistrationRepository;
 import com.example.drivingschool.service.ExcelExporter;
+import com.example.drivingschool.service.SmsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,9 @@ public class RegistrationController {
 
     @Autowired
     private RegistrationRepository registrationRepository;
+
+    @Autowired
+    private SmsService smsService;
 
     @GetMapping("/")
     public String showIndexPage() {
@@ -45,6 +49,10 @@ public class RegistrationController {
         }
 
         registrationRepository.saveAndFlush(registration);
+        String smsMessage = "Thanks Mr/Mrs"+ registration.getFirstName() +
+                "for joining Vishwakannada driving school your id is : " +
+                registration.getId() +"\n Have a nice learning Thanks";
+        smsService.sendSms(registration.getPhone(),smsMessage);
         log.info("saved successfully");
         return "redirect:/success";
     }
