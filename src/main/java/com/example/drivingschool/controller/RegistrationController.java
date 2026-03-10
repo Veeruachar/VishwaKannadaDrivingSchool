@@ -52,7 +52,7 @@ public class RegistrationController {
         String smsMessage = "Thanks Mr/Mrs"+ registration.getFirstName() +
                 "for joining Vishwakannada driving school your id is : " +
                 registration.getId() +"\n Have a nice learning Thanks";
-        smsService.sendSms(registration.getPhone(),smsMessage);
+        smsService.sendSms("+91"+registration.getPhone(),smsMessage);
         log.info("saved successfully");
         return "redirect:/success";
     }
