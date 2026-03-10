@@ -7,6 +7,7 @@ import com.example.drivingschool.service.SmsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,28 +40,49 @@ public class RegistrationController {
     }
 
     @PostMapping("/register")
+    @Transactional
     public String registerStudent(@ModelAttribute("registration") Registration registration,
-                                  @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
+                                  @RequestParam("imageFile") MultipartFile imageFile,
+                                  Model model) throws IOException {
 
-        log.info("registration request received: {}", registration);
+        // 1. Check for Duplicate
+        if (registrationRepository.findByPhone(registration.getPhone()).isPresent()) {
+            log.warn("Duplicate registration attempt for phone: {}", registration.getPhone());
+            model.addAttribute("errorMessage", "A student with this phone number is already registered!");
+            return "registration_form"; // Stays on the form with user input preserved
+        }
 
+        // 2. Save to Database
         if (!imageFile.isEmpty()) {
             registration.setProfileImage(imageFile.getBytes());
         }
-
         registrationRepository.saveAndFlush(registration);
-        String smsMessage = "Thanks Mr/Mrs"+ registration.getFirstName() +
-                "for joining Vishwakannada driving school your id is : " +
-                registration.getId() +"\n Have a nice learning Thanks";
-        smsService.sendSms("+91"+registration.getPhone(),smsMessage);
-        log.info("saved successfully");
+
+        // 3. Safely process SMS
+        try {
+            String cleanPhone = sanitizePhoneNumber(registration.getPhone());
+            String smsMessage = "Thanks " + registration.getFirstName() +
+                    ", you're registered at Vishwakannada driving school! " +
+                    "Your ID is: " + registration.getId();
+            smsService.sendSms(cleanPhone, smsMessage);
+        } catch (Exception e) {
+            log.error("SMS failed to send : {}", e.getMessage());
+        }
+
         return "redirect:/success";
+    }
+
+    private String sanitizePhoneNumber(String phone) {
+        if (phone.startsWith("+")) return phone;
+        return "+91" + phone;
     }
 
     @GetMapping("/success")
     public String registrationSuccess() {
         return "success_page";
     }
+
+    // ... (rest of your existing methods remain the same)
 
     @GetMapping("/export/excel")
     public void exportToExcel(HttpServletResponse response) throws IOException {
@@ -83,7 +105,6 @@ public class RegistrationController {
             return "student_details";
         }
 
-        // Convert byte array to Base64 for display in HTML
         if (registration.getProfileImage() != null) {
             String base64Image = Base64.getEncoder().encodeToString(registration.getProfileImage());
             model.addAttribute("imageData", base64Image);
@@ -106,15 +127,12 @@ public class RegistrationController {
                                 @ModelAttribute("registration") Registration registration,
                                 @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
 
-        // Fetch existing record to retain image if no new one is uploaded
         Registration existingRecord = registrationRepository.findByPhone(phone).orElseThrow();
-
         registration.setId(existingRecord.getId());
 
         if (!imageFile.isEmpty()) {
             registration.setProfileImage(imageFile.getBytes());
         } else {
-            // Keep the old image if a new file wasn't selected
             registration.setProfileImage(existingRecord.getProfileImage());
         }
 
