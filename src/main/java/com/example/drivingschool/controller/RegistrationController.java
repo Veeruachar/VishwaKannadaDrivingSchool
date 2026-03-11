@@ -83,10 +83,11 @@ public class RegistrationController {
 
         // 3. Safely process SMS
         try {
+            int bal = registration.getTotalFees().intValue() - initialPayment.intValue();
             String cleanPhone = sanitizePhoneNumber(registration.getPhone());
             String smsMessage = "Thanks " + registration.getFirstName() +
                     ", you're registered at Vishwakannada driving school! " +
-                    "Your ID is: " + registration.getId() + " \n you paid : " + initialPayment.toString() + "balance to be paid is : "+ (registration.getTotalFees().toBigInteger().intValue() - initialPayment.toBigInteger().intValue()) ;
+                    "Your ID is: " + registration.getId() + " \n you paid : " + initialPayment.toString() + "balance to be paid is : " + bal;
             smsService.sendSms(cleanPhone, smsMessage);
         } catch (Exception e) {
             log.error("SMS failed to send : {}", e.getMessage());
