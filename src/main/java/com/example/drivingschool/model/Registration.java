@@ -1,12 +1,16 @@
 package com.example.drivingschool.model;
 
 import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "registrations_data")
@@ -35,12 +39,20 @@ public class Registration {
 	@Column(name = "dlnumber")
 	private String dlnumber;
 
+	@Column(name = "total_fees")
+	private BigDecimal totalFees;
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "admission_date")
 	private LocalDate admissionDate;
 
-	// New field for storing the profile image as binary data
 	@Lob
 	@Column(name = "profile_image", columnDefinition = "LONGBLOB")
 	private byte[] profileImage;
+
+	// Relationship to Payment Table
+	@OneToMany(mappedBy = "registration", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	private List<Payment> payments;
 }

@@ -19,3 +19,19 @@ CREATE TABLE driving_school_db.users (
 
 
 INSERT INTO driving_school_db.users (username, password) VALUES ('admin', 'Imadmin');
+
+CREATE TABLE driving_school_db.payments (
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          registration_id BIGINT NOT NULL,
+                          amount_paid DECIMAL(10, 2) NOT NULL,
+                          payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                          payment_mode VARCHAR(50) NOT NULL, -- e.g., 'Cash', 'UPI', 'Card'
+                          transaction_id VARCHAR(100) UNIQUE, -- Useful for tracking UTR/Ref numbers
+                          remarks VARCHAR(255),
+
+    -- Foreign Key Constraint
+                          CONSTRAINT fk_registration
+                              FOREIGN KEY (registration_id)
+                                  REFERENCES registrations_data(id)
+                                  ON DELETE CASCADE
+);

@@ -1,11 +1,13 @@
 package com.example.drivingschool.service;
 
+import com.example.drivingschool.model.Payment;
 import com.example.drivingschool.model.Registration;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ExcelExporter {
@@ -29,7 +31,7 @@ public class ExcelExporter {
         font.setFontHeight((short) (16 * 20)); // Set font size
         style.setFont(font);
 
-        String[] headers = {"ID", "First Name", "Last Name", "Admission Date", "Phone", "Course Type","Dl Number"};
+        String[] headers = {"ID", "First Name", "Last Name", "Admission Date", "Phone", "Course Type","Dl Number","LastPayment Date","Total fee","Total paid","Balance"};
 
         for (int i = 0; i < headers.length; i++) {
             createCell(row, i, headers[i], style);
@@ -61,6 +63,18 @@ public class ExcelExporter {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
+            BigDecimal totalPaid = BigDecimal.ZERO;
+            if (reg.getPayments() != null) {
+                for (Payment p : reg.getPayments()) {
+                    if (p.getAmountPaid() != null) {
+                        totalPaid = totalPaid.add(BigDecimal.valueOf(p.getAmountPaid()));
+                    }
+                }
+            }
+
+            BigDecimal totalFees = (reg.getTotalFees() != null) ? reg.getTotalFees() : BigDecimal.ZERO;
+            BigDecimal balance = totalFees.subtract(totalPaid);
+
             createCell(row, columnCount++, reg.getId(), style);
             createCell(row, columnCount++, reg.getFirstName(), style);
             createCell(row, columnCount++, reg.getAddress(), style);
@@ -68,6 +82,10 @@ public class ExcelExporter {
             createCell(row, columnCount++, reg.getPhone(), style);
             createCell(row, columnCount++, reg.getCourseType(), style);
             createCell(row, columnCount++, reg.getDlnumber(), style);
+            createCell(row, columnCount++, reg.getPayments().get(0).getPaymentDate().toString(), style);
+            createCell(row, columnCount++, totalFees.toString(), style);
+            createCell(row, columnCount++, totalPaid.toString(), style);
+            createCell(row, columnCount++, balance.toString(), style);
         }
     }
 

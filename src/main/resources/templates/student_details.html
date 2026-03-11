@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <title>Student Details</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .summary-card { background: #fdfdfd; padding: 20px; border-radius: 10px; border: 1px solid #ddd; margin: 20px 0; }
+        .balance-alert { color: #d9534f; font-weight: bold; font-size: 1.2em; }
+        .paid-badge { color: #5cb85c; font-weight: bold; font-size: 1.2em; border: 2px solid #5cb85c; padding: 5px; }
+        .payment-history { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .payment-history th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        .btn-download { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .btn-payment { background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -32,6 +41,49 @@
         <p><strong>Address:</strong> <span th:text="${registration.address}"></span></p>
         <p><strong>Admission Date:</strong> <span th:text="${registration.admissionDate}"></span></p>
 
+        <h3>Payment Transactions</h3>
+        <table class="payment-history">
+            <thead>
+            <tr><th>Date</th><th>Method</th><th>Amount</th><th>Note</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${registration.payments}">
+                <td th:text="${#temporals.format(p.paymentDate, 'dd MMM yyyy HH:mm')}"></td>
+                <td th:text="${p.paymentMode}"></td>
+                <td th:text="'Rs. ' + ${p.amountPaid}"></td>
+                <td th:text="${p.remarks}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="summary-card">
+            <p><strong>Total Fees:</strong> Rs. <span th:text="${registration.totalFees}"></span></p>
+            <p><strong>Amount Paid:</strong> Rs. <span th:text="${totalPaid}"></span></p>
+            <p><strong>Current Balance:</strong>
+                <span th:class="${balance > 0 ? 'balance-alert' : 'paid-badge'}"
+                      th:text="'Rs. ' + ${balance}"></span>
+            </p>
+
+            <div th:if="${balance <= 0}" style="margin-top: 20px;">
+                <a th:href="@{/student/receipt/{phone}(phone=${registration.phone})}" class="btn-download">📄 Download Final Receipt (PDF)</a>
+            </div>
+        </div>
+
+        <div th:if="${balance > 0}" class="summary-card">
+            <h3>Record Installment</h3>
+            <form th:action="@{/student/add-payment}" method="post">
+                <input type="hidden" name="registrationId" th:value="${registration.id}">
+                <input type="number" name="amountPaid" step="0.01" th:max="${balance}" placeholder="Enter Amount" required>
+                <select name="paymentMode">
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+                <input type="text" name="remarks" placeholder="Notes (e.g. 2nd installment)">
+                <button type="submit" class="btn-payment">Add Payment</button>
+            </form>
+        </div>
+
         <div class="student-actions" style="margin-top: 20px; text-align: center;">
             <a th:href="@{/student/edit/{phone}(phone=${registration.phone})}">✏️ Edit</a>
             <a th:href="@{/student/delete/{phone}(phone=${registration.phone})}"
@@ -39,6 +91,10 @@
                onclick="return confirm('Are you sure you want to delete this record?')">🗑️ Delete</a>
             <br><br>
             <a th:href="@{/}" style="background-color: #6c757d;">⬅️ Back to Home</a>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <a th:href="@{/}">Back to Dashboard</a>
         </div>
     </div>
 </div>

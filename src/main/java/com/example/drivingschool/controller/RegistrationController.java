@@ -1,9 +1,17 @@
 package com.example.drivingschool.controller;
 
+import com.example.drivingschool.model.Payment;
 import com.example.drivingschool.model.Registration;
+import com.example.drivingschool.repository.PaymentRepository;
 import com.example.drivingschool.repository.RegistrationRepository;
 import com.example.drivingschool.service.ExcelExporter;
 import com.example.drivingschool.service.SmsService;
+import com.lowagie.text.*;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.draw.LineSeparator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.awt.Color;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
 
@@ -23,6 +34,9 @@ public class RegistrationController {
 
     @Autowired
     private RegistrationRepository registrationRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Autowired
     private SmsService smsService;
@@ -43,27 +57,36 @@ public class RegistrationController {
     @Transactional
     public String registerStudent(@ModelAttribute("registration") Registration registration,
                                   @RequestParam("imageFile") MultipartFile imageFile,
+                                  @RequestParam(value = "initialPayment", required = false) BigDecimal initialPayment,
+                                  @RequestParam(value = "paymentMode", defaultValue = "Cash") String paymentMode,
                                   Model model) throws IOException {
 
-        // 1. Check for Duplicate
         if (registrationRepository.findByPhone(registration.getPhone()).isPresent()) {
             log.warn("Duplicate registration attempt for phone: {}", registration.getPhone());
             model.addAttribute("errorMessage", "A student with this phone number is already registered!");
             return "registration_form"; // Stays on the form with user input preserved
         }
 
-        // 2. Save to Database
         if (!imageFile.isEmpty()) {
             registration.setProfileImage(imageFile.getBytes());
         }
-        registrationRepository.saveAndFlush(registration);
+        Registration savedReg = registrationRepository.saveAndFlush(registration);
+
+        if (initialPayment != null && initialPayment.compareTo(BigDecimal.ZERO) > 0) {
+            Payment payment = new Payment();
+            payment.setAmountPaid(initialPayment.doubleValue());
+            payment.setPaymentMode(paymentMode);
+            payment.setRegistration(savedReg);
+            payment.setRemarks("Initial payment at registration");
+            paymentRepository.save(payment);
+        }
 
         // 3. Safely process SMS
         try {
             String cleanPhone = sanitizePhoneNumber(registration.getPhone());
             String smsMessage = "Thanks " + registration.getFirstName() +
                     ", you're registered at Vishwakannada driving school! " +
-                    "Your ID is: " + registration.getId();
+                    "Your ID is: " + registration.getId() + " \n you paid : " + initialPayment.toString() + "balance to be paid is : "+ (registration.getTotalFees().toBigInteger().intValue() - initialPayment.toBigInteger().intValue()) ;
             smsService.sendSms(cleanPhone, smsMessage);
         } catch (Exception e) {
             log.error("SMS failed to send : {}", e.getMessage());
@@ -105,6 +128,21 @@ public class RegistrationController {
             return "student_details";
         }
 
+        BigDecimal totalPaid = BigDecimal.ZERO;
+        if (registration.getPayments() != null) {
+            for (Payment p : registration.getPayments()) {
+                if (p.getAmountPaid() != null) {
+                    totalPaid = totalPaid.add(BigDecimal.valueOf(p.getAmountPaid()));
+                }
+            }
+        }
+
+        BigDecimal totalFees = (registration.getTotalFees() != null) ? registration.getTotalFees() : BigDecimal.ZERO;
+        BigDecimal balance = totalFees.subtract(totalPaid);
+
+        model.addAttribute("totalPaid", totalPaid);
+        model.addAttribute("balance", balance);
+
         if (registration.getProfileImage() != null) {
             String base64Image = Base64.getEncoder().encodeToString(registration.getProfileImage());
             model.addAttribute("imageData", base64Image);
@@ -112,6 +150,115 @@ public class RegistrationController {
 
         model.addAttribute("registration", registration);
         return "student_details";
+    }
+
+    @PostMapping("/student/add-payment")
+    @Transactional
+    public String addPayment(@RequestParam("registrationId") Long registrationId,
+                             @RequestParam("amountPaid") BigDecimal amountPaid,
+                             @RequestParam("paymentMode") String paymentMode,
+                             @RequestParam("remarks") String remarks) {
+
+        Registration registration = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Student ID"));
+
+        Payment payment = new Payment();
+        payment.setAmountPaid(amountPaid.doubleValue());
+        payment.setPaymentMode(paymentMode);
+        payment.setRemarks(remarks);
+        payment.setRegistration(registration);
+
+        paymentRepository.save(payment);
+        return "redirect:/student/" + registration.getPhone();
+    }
+
+    @GetMapping("/student/receipt/{phone}")
+    public void downloadReceipt(@PathVariable("phone") String phone, HttpServletResponse response) throws IOException {
+        Registration reg = registrationRepository.findByPhone(phone)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        BigDecimal totalPaid = BigDecimal.ZERO;
+        for (Payment p : reg.getPayments()) {
+            if (p.getAmountPaid() != null) totalPaid = totalPaid.add(BigDecimal.valueOf(p.getAmountPaid()));
+        }
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=Receipt_" + phone + ".pdf");
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, response.getOutputStream());
+
+        document.open();
+
+        // 1. Decorative Header
+        Font schoolNameFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 24, Color.BLUE);
+        Paragraph schoolName = new Paragraph("VISHWA KANNADA DRIVING SCHOOL", schoolNameFont);
+        schoolName.setAlignment(Paragraph.ALIGN_CENTER);
+        document.add(schoolName);
+
+        Font contactFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+        Paragraph contactInfo = new Paragraph("Official Payment Receipt | Manvi,pin:584123 Karnataka\nContact: +91 90000 00000", contactFont);
+        contactInfo.setAlignment(Paragraph.ALIGN_CENTER);
+        document.add(contactInfo);
+
+        document.add(new Paragraph("\n"));
+        document.add(new LineSeparator());
+        document.add(new Paragraph("\n"));
+
+        // 2. Receipt Info
+        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+        Paragraph receiptTitle = new Paragraph("PAYMENT RECEIPT", titleFont);
+        receiptTitle.setAlignment(Paragraph.ALIGN_CENTER);
+        document.add(receiptTitle);
+        document.add(new Paragraph("\n"));
+
+        // 3. Info Table
+        PdfPTable table = new PdfPTable(2);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+
+        String billId  = reg.getAdmissionDate().getYear() + "/" + reg.getId() + "/"+ reg.getPayments().get(0).getId();
+        addTableCell(table, "Bill id:", billId, true);
+        addTableCell(table, "Student Name:", reg.getFirstName(), true);
+        addTableCell(table, "Phone Number:", reg.getPhone(), true);
+        addTableCell(table, "Course:", reg.getCourseType(), true);
+        addTableCell(table, "Total Fees:", "Rs. " + reg.getTotalFees(), true);
+        addTableCell(table, "Total Paid:", "Rs. " + totalPaid, true);
+        addTableCell(table, "Payment Status:", "FULLY PAID", true);
+
+        document.add(table);
+
+        // 4. History Table
+        document.add(new Paragraph("\nPayment Breakdown:", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+        PdfPTable historyTable = new PdfPTable(3);
+        historyTable.setWidthPercentage(100);
+        historyTable.setSpacingBefore(10f);
+
+        historyTable.addCell("Date");
+        historyTable.addCell("Mode");
+        historyTable.addCell("Amount");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        for (Payment p : reg.getPayments()) {
+            historyTable.addCell(p.getPaymentDate().format(formatter));
+            historyTable.addCell(p.getPaymentMode());
+            historyTable.addCell("Rs. " + p.getAmountPaid());
+        }
+        document.add(historyTable);
+
+        // 5. Signature Area
+        document.add(new Paragraph("\n\n\n\n"));
+        Paragraph signature = new Paragraph("__________________________\nAuthorized Signatory", contactFont);
+        signature.setAlignment(Paragraph.ALIGN_RIGHT);
+        document.add(signature);
+
+        document.close();
+    }
+
+    private void addTableCell(PdfPTable table, String label, String value, boolean bold) {
+        Font font = bold ? FontFactory.getFont(FontFactory.HELVETICA_BOLD) : FontFactory.getFont(FontFactory.HELVETICA);
+        table.addCell(new Phrase(label, font));
+        table.addCell(new Phrase(value));
     }
 
     @GetMapping("/student/edit/{phone}")
@@ -135,6 +282,9 @@ public class RegistrationController {
         } else {
             registration.setProfileImage(existingRecord.getProfileImage());
         }
+
+        registration.setPhone(existingRecord.getPhone());
+        registration.setTotalFees(existingRecord.getTotalFees());
 
         registrationRepository.saveAndFlush(registration);
         return "redirect:/student/" + phone;

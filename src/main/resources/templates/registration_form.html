@@ -35,6 +35,20 @@
         <label for="dlnumber">DL number:</label>
         <input type="text" id="dlnumber" th:field="*{dlnumber}" required>
 
+        <label for="totalFees">Total Course Fees (₹):</label>
+        <input type="number" id="totalFees" th:field="*{totalFees}" step="0.01" min="0" placeholder="0.00" required>
+
+        <label for="initialPayment">Initial Payment Amount (₹):</label>
+        <input type="number" id="initialPayment" name="initialPayment" step="0.01" min="0" placeholder="0.00">
+
+        <label for="paymentMode">Payment Mode:</label>
+        <select id="paymentMode" name="paymentMode">
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI / GPay / PhonePe</option>
+            <option value="Card">Debit/Credit Card</option>
+            <option value="Transfer">Bank Transfer</option>
+        </select>
+
         <label for="admissionDate">Admission Date:</label>
         <input type="date" id="admissionDate" th:field="*{admissionDate}" required>
 
@@ -43,6 +57,9 @@
 
         <button type="submit">Submit Registration</button>
     </form>
+    <div style="margin-top: 20px;">
+        <a th:href="@{/}">Back to Dashboard</a>
+    </div>
 </div>
 </body>
 </html>
