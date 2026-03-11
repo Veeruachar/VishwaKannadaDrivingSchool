@@ -130,7 +130,7 @@ public class RegistrationController {
     public String getStudentDetails(@PathVariable("phone") String phone, Model model) {
         Registration reg = registrationRepository.findByPhone(phone).orElse(null);
 
-        if (registration == null) {
+        if (reg == null) {
             model.addAttribute("errorMessage", "Student with phone " + phone + " not found!");
             return "student_details";
         }
