@@ -75,6 +75,11 @@ public class ExcelExporter {
             BigDecimal totalFees = (reg.getTotalFees() != null) ? reg.getTotalFees() : BigDecimal.ZERO;
             BigDecimal balance = totalFees.subtract(totalPaid);
 
+            String paymentDate = null;
+            if(reg.getPayments() != null){
+
+                paymentDate = reg.getPayments().getFirst().getPaymentDate().toString();
+            }
             createCell(row, columnCount++, reg.getId(), style);
             createCell(row, columnCount++, reg.getFirstName(), style);
             createCell(row, columnCount++, reg.getAddress(), style);
@@ -82,7 +87,7 @@ public class ExcelExporter {
             createCell(row, columnCount++, reg.getPhone(), style);
             createCell(row, columnCount++, reg.getCourseType(), style);
             createCell(row, columnCount++, reg.getDlnumber(), style);
-            createCell(row, columnCount++, reg.getPayments().get(0).getPaymentDate().toString(), style);
+            createCell(row, columnCount++, (paymentDate !=null)? paymentDate: "2999-12-12", style);
             createCell(row, columnCount++, totalFees.toString(), style);
             createCell(row, columnCount++, totalPaid.toString(), style);
             createCell(row, columnCount++, balance.toString(), style);
