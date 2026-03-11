@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -55,4 +56,10 @@ public class Registration {
 	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
 	private List<Payment> payments;
+
+	// --- NEW ATTENDANCE RELATIONSHIP ---
+	@OneToMany(mappedBy = "registration", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	private List<Attendance> attendances = new ArrayList<>();
 }

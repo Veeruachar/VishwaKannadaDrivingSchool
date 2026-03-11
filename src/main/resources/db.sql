@@ -35,3 +35,15 @@ CREATE TABLE driving_school_db.payments (
                                   REFERENCES registrations_data(id)
                                   ON DELETE CASCADE
 );
+
+CREATE TABLE driving_school_db.attendance (
+                                              id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                              registration_id BIGINT NOT NULL,
+                                              attendance_date DATE NOT NULL,
+                                              status VARCHAR(20) DEFAULT 'Present',
+                                              topic_covered VARCHAR(255),
+                                              CONSTRAINT fk_registration_attendance
+                                                  FOREIGN KEY (registration_id)
+                                                      REFERENCES registrations_data(id)
+                                                      ON DELETE CASCADE
+);

@@ -1,7 +1,9 @@
 package com.example.drivingschool.controller;
 
+import com.example.drivingschool.model.Attendance;
 import com.example.drivingschool.model.Payment;
 import com.example.drivingschool.model.Registration;
+import com.example.drivingschool.repository.AttendanceRepository;
 import com.example.drivingschool.repository.PaymentRepository;
 import com.example.drivingschool.repository.RegistrationRepository;
 import com.example.drivingschool.service.ExcelExporter;
@@ -24,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.Color;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
@@ -37,6 +40,9 @@ public class RegistrationController {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
 
     @Autowired
     private SmsService smsService;
@@ -122,34 +128,38 @@ public class RegistrationController {
 
     @GetMapping("/student/{phone}")
     public String getStudentDetails(@PathVariable("phone") String phone, Model model) {
-        Registration registration = registrationRepository.findByPhone(phone).orElse(null);
+        Registration reg = registrationRepository.findByPhone(phone).orElse(null);
 
         if (registration == null) {
             model.addAttribute("errorMessage", "Student with phone " + phone + " not found!");
             return "student_details";
         }
 
+        // 1. Calculate Financials (Normal Java Loop)
         BigDecimal totalPaid = BigDecimal.ZERO;
-        if (registration.getPayments() != null) {
-            for (Payment p : registration.getPayments()) {
-                if (p.getAmountPaid() != null) {
-                    totalPaid = totalPaid.add(BigDecimal.valueOf(p.getAmountPaid()));
-                }
+        if (reg.getPayments() != null) {
+            for (Payment p : reg.getPayments()) {
+                if (p.getAmountPaid() != null) totalPaid = totalPaid.add(BigDecimal.valueOf(p.getAmountPaid()));
             }
         }
+        BigDecimal balance = (reg.getTotalFees() != null ? reg.getTotalFees() : BigDecimal.ZERO).subtract(totalPaid);
 
-        BigDecimal totalFees = (registration.getTotalFees() != null) ? registration.getTotalFees() : BigDecimal.ZERO;
-        BigDecimal balance = totalFees.subtract(totalPaid);
+        // 2. Calculate Attendance Progress
+        int classesTaken = (reg.getAttendances() != null) ? reg.getAttendances().size() : 0;
+        int totalClassesAllowed = 30; // Assuming 30 classes standard
+        int remainingClasses = totalClassesAllowed - classesTaken;
 
+        // 3. Prepare Model
+        model.addAttribute("registration", reg);
         model.addAttribute("totalPaid", totalPaid);
         model.addAttribute("balance", balance);
+        model.addAttribute("classesTaken", classesTaken);
+        model.addAttribute("remainingClasses", Math.max(0, remainingClasses));
 
-        if (registration.getProfileImage() != null) {
-            String base64Image = Base64.getEncoder().encodeToString(registration.getProfileImage());
-            model.addAttribute("imageData", base64Image);
+        if (reg.getProfileImage() != null) {
+            model.addAttribute("imageData", Base64.getEncoder().encodeToString(reg.getProfileImage()));
         }
 
-        model.addAttribute("registration", registration);
         return "student_details";
     }
 
@@ -302,5 +312,19 @@ public class RegistrationController {
 
         registrationRepository.delete(registration);
         return "redirect:/";
+    }
+
+    @PostMapping("/student/add-attendance")
+    @Transactional
+    public String addAttendance(@RequestParam("registrationId") Long regId,
+                                @RequestParam("topic") String topic) {
+        Registration reg = registrationRepository.findById(regId).orElseThrow();
+        Attendance att = new Attendance();
+        att.setRegistration(reg);
+        att.setDate(LocalDate.now());
+        att.setStatus("Present");
+        att.setTopicCovered(topic);
+        attendanceRepository.save(att);
+        return "redirect:/student/" + reg.getPhone();
     }
 }
