@@ -296,6 +296,7 @@ public class RegistrationController {
 
         registration.setPhone(existingRecord.getPhone());
         registration.setTotalFees(existingRecord.getTotalFees());
+        registration.setAttendances(existingRecord.getAttendances());
 
         registrationRepository.saveAndFlush(registration);
         return "redirect:/student/" + phone;
