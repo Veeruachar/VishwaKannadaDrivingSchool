@@ -76,9 +76,8 @@ public class ExcelExporter {
             BigDecimal balance = totalFees.subtract(totalPaid);
 
             String paymentDate = null;
-            if(reg.getPayments() != null){
-
-                paymentDate = reg.getPayments().getFirst().getPaymentDate().toString();
+            if(reg.getPayments() != null && !reg.getPayments().isEmpty()){
+                paymentDate = reg.getPayments().get(0).getPaymentDate().toString();
             }
             createCell(row, columnCount++, reg.getId(), style);
             createCell(row, columnCount++, reg.getFirstName(), style);
