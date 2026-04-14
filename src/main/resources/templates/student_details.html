@@ -21,19 +21,50 @@
 
         .profile-img { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 5px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .table-card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #fff; }
+
+        /* Responsive Navbar background for mobile */
+        @media (max-width: 767.98px) {
+            .navbar-collapse {
+                background-color: #212529;
+                padding: 1rem;
+                border-top: 1px solid #444;
+            }
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark bg-dark sticky-top shadow">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top shadow-sm">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="#">VishwaKannada Admin</a>
+        <a class="navbar-brand fw-bold text-uppercase d-flex align-items-center" href="#" style="letter-spacing: 1px;">
+            <span class="text-info me-1">VishwaKannada</span>
+            <span class="ms-2 d-none d-sm-inline-block fw-light small opacity-75">Admin</span>
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav d-md-none me-auto mb-3">
+                <li class="nav-item"><a class="nav-link active" onclick="showSection('profile', this)">👤 Profile Overview</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('attendance', this)">📅 Attendance Log</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('payments', this)">💰 Payment History</a></li>
+                <li th:if="${registration != null}" class="nav-item">
+                    <a class="nav-link" th:href="@{/student/edit/{phone}(phone=${registration.phone})}">Edit Student</a>
+                </li>
+                <li th:if="${registration != null}" class="nav-item"><a class="nav-link text-danger" th:href="@{/student/delete/{phone}(phone=${registration.phone})}" onclick="return confirm('Delete this record?')">🗑️ Delete Student</a></li>
+
+                <li class="nav-item"><a class="nav-link text-danger fw-bold" th:href="@{/logout}">Secure Logout</a></li>
+            </ul>
+        </div>
     </div>
 </nav>
 
 <div class="container-fluid">
     <div class="row">
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar shadow">
+        <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar shadow">
             <div class="position-sticky">
 
                 <div th:if="${registration != null}">
@@ -94,12 +125,10 @@
                                     <div class="progress-bar bg-success" role="progressbar"
                                          th:style="'width: ' + (${classesTaken} * 100 / 30) + '%'"
                                          th:text="${classesTaken} + ' Done'"></div>
-                                    <div>
-                                        <p><strong>Total classes</strong> [[${totalClasses}]]</p>
-                                        <br>
-                                        <p><strong>Remaining</strong> [[${remainingClasses}]]</p>
-                                    </div>
-
+                                </div>
+                                <div>
+                                    <p><strong>Total classes:</strong> [[${totalClasses}]]</p>
+                                    <p><strong>Remaining:</strong> [[${remainingClasses}]]</p>
                                 </div>
                                 <hr>
                                 <h5>Current Balance</h5>
