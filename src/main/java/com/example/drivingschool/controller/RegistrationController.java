@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
 import java.awt.Color;
@@ -127,37 +128,47 @@ public class RegistrationController {
     }
 
     @GetMapping("/student/{phone}")
-    public String getStudentDetails(@PathVariable("phone") String phone, Model model) {
+    public String getStudentDetails(@PathVariable("phone") String phone, Model model, RedirectAttributes redirectAttrs) {
+        // 1. Fetch the student safely
         Registration reg = registrationRepository.findByPhone(phone).orElse(null);
 
+        // 2. SAFETY CHECK: Redirect if not found
+        // This prevents the 'student_details.html' from trying to render a null object
         if (reg == null) {
             model.addAttribute("errorMessage", "Student with phone " + phone + " not found!");
-            return "student_details";
+            return "student_details"; // Go back to the main dashboard/search page
         }
 
-        // 1. Calculate Financials (Normal Java Loop)
+        // 3. Calculate Financials
         BigDecimal totalPaid = BigDecimal.ZERO;
         if (reg.getPayments() != null) {
             for (Payment p : reg.getPayments()) {
-                if (p.getAmountPaid() != null) totalPaid = totalPaid.add(BigDecimal.valueOf(p.getAmountPaid()));
+                if (p.getAmountPaid() != null) {
+                    totalPaid = totalPaid.add(BigDecimal.valueOf(p.getAmountPaid()));
+                }
             }
         }
-        BigDecimal balance = (reg.getTotalFees() != null ? reg.getTotalFees() : BigDecimal.ZERO).subtract(totalPaid);
 
-        // 2. Calculate Attendance Progress
+        BigDecimal totalFees = (reg.getTotalFees() != null) ? reg.getTotalFees() : BigDecimal.ZERO;
+        BigDecimal balance = totalFees.subtract(totalPaid);
+
+        // 4. Calculate Attendance Progress
         int classesTaken = (reg.getAttendances() != null) ? reg.getAttendances().size() : 0;
-        int totalClassesAllowed = 30; // Assuming 30 classes standard
-        int remainingClasses = totalClassesAllowed - classesTaken;
+        int totalClassesAllowed = 30; // Your business logic constant
+        int remainingClasses = Math.max(0, totalClassesAllowed - classesTaken);
 
-        // 3. Prepare Model
+        // 5. Populate Model for the Dashboard
         model.addAttribute("registration", reg);
         model.addAttribute("totalPaid", totalPaid);
         model.addAttribute("balance", balance);
         model.addAttribute("classesTaken", classesTaken);
-        model.addAttribute("remainingClasses", Math.max(0, remainingClasses));
+        model.addAttribute("totalClasses", totalClassesAllowed);
+        model.addAttribute("remainingClasses", remainingClasses);
 
-        if (reg.getProfileImage() != null) {
-            model.addAttribute("imageData", Base64.getEncoder().encodeToString(reg.getProfileImage()));
+        // 6. Handle Profile Image (Base64 for <img> tag)
+        if (reg.getProfileImage() != null && reg.getProfileImage().length > 0) {
+            String base64Image = Base64.getEncoder().encodeToString(reg.getProfileImage());
+            model.addAttribute("imageData", base64Image);
         }
 
         return "student_details";

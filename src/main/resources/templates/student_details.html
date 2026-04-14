@@ -1,138 +1,212 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Student Details</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile - VishwaKannada</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .summary-card { background: #fdfdfd; padding: 20px; border-radius: 10px; border: 1px solid #ddd; margin: 20px 0; }
-        .balance-alert { color: #d9534f; font-weight: bold; font-size: 1.2em; }
-        .paid-badge { color: #5cb85c; font-weight: bold; font-size: 1.2em; border: 2px solid #5cb85c; padding: 5px; }
-        .progress-text { font-weight: bold; color: #007bff; font-size: 1.2em; }
-        .payment-history, .attendance-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        .payment-history th, td, .attendance-table th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
-        .btn-download { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
-        .btn-payment, .btn-attendance { background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+        :root { --sidebar-bg: #2c3e50; --active-color: #1abc9c; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+
+        .sidebar { min-height: 100vh; background-color: var(--sidebar-bg); padding-top: 20px; z-index: 100; }
+        .sidebar .nav-link { color: #bdc3c7; padding: 12px 20px; border-left: 4px solid transparent; cursor: pointer; transition: 0.2s; }
+        .sidebar .nav-link:hover { background: #34495e; color: #fff; }
+        .sidebar .nav-link.active { background-color: #34495e; color: #fff; border-left: 4px solid var(--active-color); }
+
+        .content-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .content-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .profile-img { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 5px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .table-card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #fff; }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Student Details</h1>
 
-    <div th:if="${errorMessage}">
-        <script th:inline="javascript">
-            alert([[${errorMessage}]]);
-            window.location = '/';
-        </script>
+<nav class="navbar navbar-dark bg-dark sticky-top shadow">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">VishwaKannada Admin</a>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar shadow">
+            <div class="position-sticky">
+
+                <div th:if="${registration != null}">
+                    <h6 class="text-uppercase text-secondary px-3 small fw-bold mb-3 opacity-50">View Details</h6>
+                    <ul class="nav flex-column mb-4" id="sideNav">
+                        <li class="nav-item"><a class="nav-link active" onclick="showSection('profile', this)">👤 Profile Overview</a></li>
+                        <li class="nav-item"><a class="nav-link" onclick="showSection('attendance', this)">📅 Attendance Log</a></li>
+                        <li class="nav-item"><a class="nav-link" onclick="showSection('payments', this)">💰 Payment History</a></li>
+                    </ul>
+
+                    <h6 class="text-uppercase text-secondary px-3 small fw-bold mb-3 opacity-50">Actions</h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link text-info" th:href="@{/student/edit/{phone}(phone=${registration.phone})}">✏️ Edit Details</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" th:href="@{/student/delete/{phone}(phone=${registration.phone})}" onclick="return confirm('Delete this record?')">🗑️ Delete Student</a></li>
+                    </ul>
+                </div>
+
+                <ul class="nav flex-column mt-3 border-top pt-3">
+                    <li class="nav-item"><a class="nav-link text-warning" th:href="@{/}">🏠 Back to Dashboard</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+
+            <div th:if="${errorMessage}" class="alert alert-danger shadow-sm">
+                <h4 class="alert-heading">Search Error</h4>
+                <p th:text="${errorMessage}"></p>
+                <hr>
+                <a href="/" class="btn btn-outline-danger btn-sm">Try Again</a>
+            </div>
+
+            <div th:if="${registration != null}">
+
+                <div id="profile" class="content-section active">
+                    <h2 class="mb-4">Student Profile</h2>
+                    <div class="row">
+                        <div class="col-lg-4 text-center">
+                            <div class="card table-card p-4">
+                                <div th:if="${imageData != null}">
+                                    <img th:src="'data:image/jpeg;base64,' + ${imageData}" class="profile-img mb-3">
+                                </div>
+                                <h4 th:text="${registration.firstName}">Name</h4>
+                                <span class="badge bg-primary-subtle text-primary mb-3" th:text="${registration.courseType}">Course</span>
+                                <div class="text-start border-top pt-3 small">
+                                    <p><strong>ID:</strong> [[${registration.id}]]</p>
+                                    <p><strong>DL:</strong> [[${registration.dlnumber}]]</p>
+                                    <p><strong>Phone:</strong> [[${registration.phone}]]</p>
+                                    <p><strong>Joined:</strong> [[${registration.admissionDate}]]</p>
+                                    <p><strong>Address:</strong> [[${registration.address}]]</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="card table-card p-4">
+                                <h5>Course Progress</h5>
+                                <div class="progress my-3" style="height: 20px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         th:style="'width: ' + (${classesTaken} * 100 / 30) + '%'"
+                                         th:text="${classesTaken} + ' Done'"></div>
+                                    <div>
+                                        <p><strong>Total classes</strong> [[${totalClasses}]]</p>
+                                        <br>
+                                        <p><strong>Remaining</strong> [[${remainingClasses}]]</p>
+                                    </div>
+
+                                </div>
+                                <hr>
+                                <h5>Current Balance</h5>
+                                <h2 th:class="${balance > 0 ? 'text-danger' : 'text-success'}" th:text="'₹' + ${balance}"></h2>
+                                <div th:if="${balance <= 0}" class="mt-3">
+                                    <a th:href="@{/student/receipt/{phone}(phone=${registration.phone})}" class="btn btn-primary">Download Receipt</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="attendance" class="content-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Attendance Log</h2>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#attendanceModal">Mark Present</button>
+                    </div>
+                    <div class="card table-card overflow-hidden">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                            <tr><th>Date</th><th>Topic</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="att : ${registration.attendances}">
+                                <td th:text="${#temporals.format(att.date, 'dd MMM yyyy')}"></td>
+                                <td th:text="${att.topicCovered}"></td>
+                                <td><span class="badge bg-success">Present</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="payments" class="content-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Transaction History</h2>
+                        <button th:if="${balance > 0}" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Add Installment</button>
+                    </div>
+                    <div class="card table-card overflow-hidden">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                            <tr><th>Date</th><th>Mode</th><th>Amount</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p : ${registration.payments}">
+                                <td th:text="${#temporals.format(p.paymentDate, 'dd MMM yyyy')}"></td>
+                                <td th:text="${p.paymentMode}"></td>
+                                <td class="fw-bold text-success" th:text="'₹' + ${p.amountPaid}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:if="${registration != null}">
+    <div class="modal fade" id="attendanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form th:action="@{/student/add-attendance}" method="post" class="modal-content">
+                <div class="modal-header"><h5>Record Attendance</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" name="registrationId" th:value="${registration.id}">
+                    <input type="text" name="topic" class="form-control" placeholder="Topic Covered" required>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Save</button></div>
+            </form>
+        </div>
     </div>
 
-    <div th:if="${registration != null}">
-
-        <div th:if="${imageData != null}" style="text-align: center; margin-bottom: 20px;">
-            <img th:src="'data:image/jpeg;base64,' + ${imageData}"
-                 alt="Profile Picture"
-                 style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff;">
-        </div>
-
-        <p><strong>ID:</strong> <span th:text="${registration.id}"></span></p>
-        <p><strong>Name:</strong> <span th:text="${registration.firstName}"></span></p>
-        <p><strong>DL Number:</strong> <span th:text="${registration.dlnumber}"></span></p>
-        <p><strong>Phone:</strong> <span th:text="${registration.phone}"></span></p>
-        <p><strong>Course Type:</strong> <span th:text="${registration.courseType}"></span></p>
-        <p><strong>Address:</strong> <span th:text="${registration.address}"></span></p>
-        <p><strong>Admission Date:</strong> <span th:text="${registration.admissionDate}"></span></p>
-
-        <div class="summary-card">
-            <h3>Course Progress</h3>
-            <p><strong>Total Classes:</strong> 30</p>
-            <p><strong>Classes Completed:</strong> <span th:text="${classesTaken}">0</span></p>
-            <p><strong>Remaining Classes:</strong>
-                <span class="progress-text" th:text="${remainingClasses}">30</span>
-            </p>
-        </div>
-
-        <div class="summary-card">
-            <h3>Mark Attendance</h3>
-            <form th:action="@{/student/add-attendance}" method="post" style="display: flex; gap: 10px;">
-                <input type="hidden" name="registrationId" th:value="${registration.id}">
-                <input type="text" name="topic" placeholder="Topic Covered (e.g. Steering Control)" required style="padding: 8px; flex-grow: 1;">
-                <button type="submit" class="btn-attendance">Mark Present</button>
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form th:action="@{/student/add-payment}" method="post" class="modal-content">
+                <div class="modal-header"><h5>Add Payment</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" name="registrationId" th:value="${registration.id}">
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" name="amountPaid" class="form-control" th:max="${balance}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mode</label>
+                        <select name="paymentMode" class="form-select">
+                            <option value="Cash">Cash</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Submit</button></div>
             </form>
-        </div>
-
-        <h3>Attendance Log</h3>
-        <table class="attendance-table">
-            <thead>
-            <tr>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Topic Covered</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="att : ${registration.attendances}">
-                <td th:text="${#temporals.format(att.date, 'dd MMM yyyy')}"></td>
-                <td th:text="${att.status}">Present</td>
-                <td th:text="${att.topicCovered}"></td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(registration.attendances)}">
-                <td colspan="3" style="text-align: center;">No attendance records found.</td>
-            </tr>
-            </tbody>
-        </table>
-
-        <h3>Payment Transactions</h3>
-        <table class="payment-history">
-            <thead>
-            <tr><th>Date</th><th>Method</th><th>Amount</th><th>Note</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="p : ${registration.payments}">
-                <td th:text="${#temporals.format(p.paymentDate, 'dd MMM yyyy HH:mm')}"></td>
-                <td th:text="${p.paymentMode}"></td>
-                <td th:text="'Rs. ' + ${p.amountPaid}"></td>
-                <td th:text="${p.remarks}"></td>
-            </tr>
-            </tbody>
-        </table>
-
-        <div class="summary-card">
-            <p><strong>Total Fees:</strong> Rs. <span th:text="${registration.totalFees}"></span></p>
-            <p><strong>Amount Paid:</strong> Rs. <span th:text="${totalPaid}"></span></p>
-            <p><strong>Current Balance:</strong>
-                <span th:class="${balance > 0 ? 'balance-alert' : 'paid-badge'}"
-                      th:text="'Rs. ' + ${balance}"></span>
-            </p>
-
-            <div th:if="${balance <= 0}" style="margin-top: 20px;">
-                <a th:href="@{/student/receipt/{phone}(phone=${registration.phone})}" class="btn-download">📄 Download Final Receipt (PDF)</a>
-            </div>
-        </div>
-
-        <div th:if="${balance > 0}" class="summary-card">
-            <h3>Record Installment</h3>
-            <form th:action="@{/student/add-payment}" method="post">
-                <input type="hidden" name="registrationId" th:value="${registration.id}">
-                <input type="number" name="amountPaid" step="0.01" th:max="${balance}" placeholder="Enter Amount" required>
-                <select name="paymentMode">
-                    <option value="Cash">Cash</option>
-                    <option value="UPI">UPI</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                </select>
-                <input type="text" name="remarks" placeholder="Notes (e.g. 2nd installment)">
-                <button type="submit" class="btn-payment">Add Payment</button>
-            </form>
-        </div>
-
-        <div class="student-actions" style="margin-top: 20px; text-align: center;">
-            <a th:href="@{/student/edit/{phone}(phone=${registration.phone})}">✏️ Edit</a>
-            <a th:href="@{/student/delete/{phone}(phone=${registration.phone})}"
-               style="background-color: #dc3545;"
-               onclick="return confirm('Are you sure you want to delete this record?')">🗑️ Delete</a>
-            <br><br>
-            <a th:href="@{/}" style="background-color: #6c757d;">⬅️ Back to Home</a>
         </div>
     </div>
 </div>
+
+<script>
+    function showSection(sectionId, element) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        element.classList.add('active');
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

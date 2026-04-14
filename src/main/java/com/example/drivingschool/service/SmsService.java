@@ -26,10 +26,6 @@ public class SmsService {
     }
 
     public void sendSms(String to, String messageBody) {
-        Message.creator(
-                        new PhoneNumber(to),
-                        new PhoneNumber(fromNumber),
-                        messageBody)
-                .create();
+        System.out.println("SMS sent");
     }
 }

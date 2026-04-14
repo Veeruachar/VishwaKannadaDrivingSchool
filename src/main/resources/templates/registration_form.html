@@ -1,65 +1,254 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Driving School Registration</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vishwakannada Driving School Manvi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+            --active-color: #1abc9c;
+            --primary-accent: #3498db;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            min-height: 100vh;
+            background-color: var(--sidebar-bg);
+            padding-top: 20px;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        }
+
+        .sidebar .nav-link {
+            color: #bdc3c7;
+            padding: 12px 20px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            padding-left: 24px;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #34495e;
+            color: #fff;
+            border-left: 4px solid var(--active-color);
+        }
+
+        .stat-card {
+            transition: transform 0.2s;
+            cursor: default;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        @media (max-width: 767.98px) {
+            .navbar-collapse {
+                background-color: #212529;
+                padding: 1rem;
+                border-top: 1px solid #444;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>Vishwa kannada driving school</h1>
-    <h2>Registration form</h2>
 
-    <div th:if="${errorMessage}" style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
-        <p th:text="${errorMessage}"></p>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-uppercase d-flex align-items-center" href="#" style="letter-spacing: 1px;">
+            <span class="text-info me-1">VishwaKannada</span>
+            <span class="ms-2 d-none d-sm-inline-block fw-light small opacity-75">Driving School</span>
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav d-md-none me-auto mb-3">
+                <li class="nav-item"><a class="nav-link" th:href="@{/register}">Student Registration</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/export/excel}">Download Excel Data</a></li>
+                <li class="nav-item"><a class="nav-link text-danger fw-bold" th:href="@{/logout}">Secure Logout</a></li>
+            </ul>
+
+            <form class="d-flex ms-auto" id="searchForm" onsubmit="searchStudent(event)">
+                <div class="input-group">
+                    <input type="tel"
+                           id="studentPhone"
+                           placeholder="Phone: 99XXXXXX00"
+                           pattern="[0-9]{10}"
+                           maxlength="10"
+                           required
+                           class="form-control form-control-sm">
+                    <button class="btn btn-info btn-sm px-3" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
     </div>
+</nav>
 
-    <form th:action="@{/register}" th:object="${registration}" method="post" enctype="multipart/form-data">
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar shadow">
+            <div class="position-sticky">
+                <h6 class="text-uppercase text-secondary px-3 small fw-bold mb-3 opacity-50">Main Menu</h6>
+                <ul class="nav flex-column mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/}" id="nav-dash">Dashboard Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/register}" id="nav-reg">Register Student</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/export/excel}">Export to Excel</a>
+                    </li>
+                </ul>
 
-        <label for="firstName">First Name:</label>
-        <input type="text" id="firstName" th:field="*{firstName}" required>
+                <h6 class="text-uppercase text-secondary px-3 small fw-bold mb-3 opacity-50">Security</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" th:href="@{/logout}">Logout System</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-        <label for="address">Address:</label>
-        <input type="text" id="address" th:field="*{address}" required>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Student Registration</h1>
+            </div>
 
-        <label for="phone">Phone Number:</label>
-        <input type="tel" id="phone" th:field="*{phone}" required>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <span th:text="${errorMessage}">Error details here.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
 
-        <label for="courseType">Select Course:</label>
-        <select id="courseType" th:field="*{courseType}" required>
-            <option value="">-- Choose a Course --</option>
-            <option value="Regular">30 Days</option>
-            <option value="Other">Other</option>
-        </select>
+            <div class="card form-card">
+                <div class="card-body p-4 p-md-5">
+                    <form th:action="@{/register}" th:object="${registration}" method="post" enctype="multipart/form-data">
 
-        <label for="dlnumber">DL number:</label>
-        <input type="text" id="dlnumber" th:field="*{dlnumber}" required>
+                        <div class="row g-4">
+                            <div class="col-12"><h5 class="text-primary border-bottom pb-2">Personal Information</h5></div>
 
-        <label for="totalFees">Total Course Fees (₹):</label>
-        <input type="number" id="totalFees" th:field="*{totalFees}" step="0.01" min="0" placeholder="0.00" required>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">First Name</label>
+                                <input type="text" class="form-control" th:field="*{firstName}" required placeholder="John">
+                            </div>
 
-        <label for="initialPayment">Initial Payment Amount (₹):</label>
-        <input type="number" id="initialPayment" name="initialPayment" step="0.01" min="0" placeholder="0.00">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Phone Number</label>
+                                <input type="tel" class="form-control" th:field="*{phone}" required placeholder="9988776655">
+                            </div>
 
-        <label for="paymentMode">Payment Mode:</label>
-        <select id="paymentMode" name="paymentMode">
-            <option value="Cash">Cash</option>
-            <option value="UPI">UPI / GPay / PhonePe</option>
-            <option value="Card">Debit/Credit Card</option>
-            <option value="Transfer">Bank Transfer</option>
-        </select>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Address</label>
+                                <input type="text" class="form-control" th:field="*{address}" required placeholder="Enter full address">
+                            </div>
 
-        <label for="admissionDate">Admission Date:</label>
-        <input type="date" id="admissionDate" th:field="*{admissionDate}" required>
+                            <div class="col-12 mt-5"><h5 class="text-primary border-bottom pb-2">Course & Documentation</h5></div>
 
-        <label for="imageFile">Profile Picture:</label>
-        <input type="file" id="imageFile" name="imageFile" accept="image/*">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Select Course</label>
+                                <select class="form-select" th:field="*{courseType}" required>
+                                    <option value="">-- Choose --</option>
+                                    <option value="Regular">30 Days</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
 
-        <button type="submit">Submit Registration</button>
-    </form>
-    <div style="margin-top: 20px;">
-        <a th:href="@{/}">Back to Dashboard</a>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">DL Number</label>
+                                <input type="text" class="form-control" th:field="*{dlnumber}" required placeholder="DL-12345678">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Admission Date</label>
+                                <input type="date" class="form-control" th:field="*{admissionDate}" required>
+                            </div>
+
+                            <div class="col-12 mt-5"><h5 class="text-primary border-bottom pb-2">Fees & Payment</h5></div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Total Fees (₹)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" th:field="*{totalFees}" step="0.01" min="0" required placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Initial Payment (₹)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" name="initialPayment" step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Payment Mode</label>
+                                <select class="form-select" name="paymentMode">
+                                    <option value="Cash">Cash</option>
+                                    <option value="UPI">UPI / GPay / PhonePe</option>
+                                    <option value="Card">Debit/Credit Card</option>
+                                    <option value="Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mt-4">
+                                <label class="form-label fw-bold">Profile Picture</label>
+                                <input type="file" class="form-control" id="imageFile" name="imageFile" accept="image/*">
+                                <small class="text-muted">Maximum file size 2MB</small>
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">Submit Registration</button>
+                                <a th:href="@{/}" class="btn btn-outline-secondary btn-lg px-4 ms-2">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
     </div>
 </div>
+
+<script>
+    // Search Redirection
+    function searchStudent(event) {
+        event.preventDefault();
+        const phone = document.getElementById('studentPhone').value;
+        if (phone) {
+            window.location.href = '/student/' + phone;
+        }
+    }
+
+    // Auto-Highlight Active Sidebar Link
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
