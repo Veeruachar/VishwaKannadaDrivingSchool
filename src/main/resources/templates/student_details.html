@@ -141,13 +141,14 @@
                     <div class="card table-card overflow-hidden">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
-                            <tr><th>Date</th><th>Mode</th><th>Amount</th></tr>
+                            <tr><th>Date</th><th>Mode</th><th>Amount</th><th>Remarks</th></tr>
                             </thead>
                             <tbody>
                             <tr th:each="p : ${registration.payments}">
                                 <td th:text="${#temporals.format(p.paymentDate, 'dd MMM yyyy')}"></td>
                                 <td th:text="${p.paymentMode}"></td>
                                 <td class="fw-bold text-success" th:text="'₹' + ${p.amountPaid}"></td>
+                                <td th:text="${p.remarks}"></td>
                             </tr>
                             </tbody>
                         </table>
@@ -190,6 +191,10 @@
                             <option value="UPI">UPI</option>
                             <option value="Bank Transfer">Bank Transfer</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Remarks</label>
+                        <input type="text" name="remarks" class="form-control" placeholder="Remarks is mandatory" required>
                     </div>
                 </div>
                 <div class="modal-footer"><button type="submit" class="btn btn-primary">Submit</button></div>
