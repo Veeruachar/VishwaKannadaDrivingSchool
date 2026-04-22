@@ -81,6 +81,7 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav d-md-none me-auto mb-3">
                 <li class="nav-item"><a class="nav-link" th:href="@{/register}">Student Registration</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/viewAllStudents}">View All Students</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/export/excel}">Download Excel Data</a></li>
                 <li class="nav-item"><a class="nav-link text-danger fw-bold" th:href="@{/logout}">Secure Logout</a></li>
             </ul>
@@ -114,6 +115,9 @@
                         <a class="nav-link" th:href="@{/register}" id="nav-reg">Register Student</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" th:href="@{/viewAllStudents}" >View All Students</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" th:href="@{/export/excel}">Export to Excel</a>
                     </li>
                 </ul>
@@ -129,24 +133,24 @@
 
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
 
-<!--            <div class="row g-3 mb-4">-->
-<!--                <div class="col-12 col-sm-6 col-xl-3">-->
-<!--                    <div class="card stat-card border-0 shadow-sm">-->
-<!--                        <div class="card-body p-3">-->
-<!--                            <small class="text-muted text-uppercase fw-bold">Total Students</small>-->
-<!--                            <h3 class="mb-0 mt-1">1,240</h3>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="col-12 col-sm-6 col-xl-3">-->
-<!--                    <div class="card stat-card border-0 shadow-sm">-->
-<!--                        <div class="card-body p-3">-->
-<!--                            <small class="text-muted text-uppercase fw-bold">New This Month</small>-->
-<!--                            <h3 class="mb-0 mt-1 text-info">+48</h3>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card stat-card border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <small class="text-muted text-uppercase fw-bold" >Total number of students</small>
+                            <h3 class="mb-0 mt-1" th:text="${totalNumberOfStudents}"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card stat-card border-0 shadow-sm">
+                        <div class="card-body p-3">
+                            <small class="text-muted text-uppercase fw-bold">New This Month</small>
+                            <h3 class="mb-0 mt-1 text-info" th:text="${admissionThisMonth}"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="bg-white p-4 rounded-3 shadow-sm border">
                 <h1 class="h2 border-bottom pb-3 mb-4">Management Portal</h1>

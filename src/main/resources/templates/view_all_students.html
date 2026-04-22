@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Directory - VishwaKannada</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+            --active-color: #1abc9c;
+            --primary-accent: #3498db;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            min-height: 100vh;
+            background-color: var(--sidebar-bg);
+            padding-top: 20px;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        }
+
+        .sidebar .nav-link {
+            color: #bdc3c7;
+            padding: 12px 20px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            padding-left: 24px;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #34495e;
+            color: #fff;
+            border-left: 4px solid var(--active-color);
+        }
+
+        .table-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+
+        .student-link {
+            text-decoration: none;
+            color: var(--primary-accent);
+            font-weight: 600;
+        }
+
+        @media (max-width: 767.98px) {
+            .navbar-collapse {
+                background-color: #212529;
+                padding: 1rem;
+                border-top: 1px solid #444;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-uppercase d-flex align-items-center" href="#" style="letter-spacing: 1px;">
+            <span class="text-info me-1">VishwaKannada</span>
+            <span class="ms-2 d-none d-sm-inline-block fw-light small opacity-75">Driving School</span>
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav d-md-none me-auto mb-3">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}">Dashboard Home</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/register}">Registration</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/viewAllStudents}">View All</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/export/excel}">Export to excel</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" th:href="@{/logout}">Logout</a></li>
+            </ul>
+
+            <form class="d-flex ms-auto" onsubmit="searchStudent(event)">
+                <div class="input-group">
+                    <input type="tel" id="studentPhone" placeholder="Phone Search..." pattern="[0-9]{10}" class="form-control form-control-sm">
+                    <button class="btn btn-info btn-sm px-3" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar shadow">
+            <div class="position-sticky">
+                <h6 class="text-uppercase text-secondary px-3 small fw-bold mb-3 opacity-50">Main Menu</h6>
+                <ul class="nav flex-column mb-4">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/}" id="nav-dash">Dashboard Home</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/register}" id="nav-reg">Register Student</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/viewAllStudents}">View All Students</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/export/excel}">Export to Excel</a></li>
+                </ul>
+                <h6 class="text-uppercase text-secondary px-3 small fw-bold mb-3 opacity-50">Security</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" th:href="@{/logout}">Logout System</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Student Directory</h1>
+            </div>
+
+            <div th:if="${students != null and !students.isEmpty()}" class="card table-card p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 mb-0 text-secondary">Active Registrations</h2>
+                    <span class="badge bg-primary rounded-pill px-3" th:text="${students.totalElements} + ' Total'"></span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>DL Number</th>
+                            <th>Address</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="student : ${students.content}">
+                            <td>
+                                <a class="student-link fw-bold"
+                                   th:href="@{/student/{phone}(phone=${student.phone})}"
+                                   th:text="${student.firstName}"></a>
+                            </td>
+                            <td th:text="${student.phone}"></td>
+                            <td><code th:text="${student.dlnumber}"></code></td>
+                            <td class="small text-muted" th:text="${student.address}"></td>
+                            <td class="text-end">
+                                <a th:href="@{/student/{phone}(phone=${student.phone})}" class="btn btn-sm btn-outline-info">Details</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav th:if="${students.totalPages > 1}" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${students.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/viewAllStudents(page=${students.number - 1})}">Previous</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, students.totalPages - 1)}"
+                            th:classappend="${i == students.number} ? 'active'">
+                            <a class="page-link" th:href="@{/viewAllStudents(page=${i})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${students.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/viewAllStudents(page=${students.number + 1})}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div th:unless="${students != null and !students.isEmpty()}" class="alert alert-info py-4 text-center">
+                <p class="mb-0">No registered students found in the database.</p>
+                <a th:href="@{/register}" class="btn btn-primary mt-3">Register First Student</a>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    function searchStudent(event) {
+        event.preventDefault();
+        const phone = document.getElementById('studentPhone').value;
+        if (phone) window.location.href = '/student/' + phone;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (currentPath === href || (href !== '/' && currentPath.startsWith(href))) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -48,6 +48,7 @@
 
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav d-md-none me-auto mb-3">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}">Dashboard home</a></li>
                 <li class="nav-item"><a class="nav-link active" onclick="showSection('profile', this)">👤 Profile Overview</a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('attendance', this)">📅 Attendance Log</a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('payments', this)">💰 Payment History</a></li>
@@ -70,6 +71,7 @@
                 <div th:if="${registration != null}">
                     <h6 class="text-uppercase text-secondary px-3 small fw-bold mb-3 opacity-50">View Details</h6>
                     <ul class="nav flex-column mb-4" id="sideNav">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/}">Dashboard home</a></li>
                         <li class="nav-item"><a class="nav-link active" onclick="showSection('profile', this)">👤 Profile Overview</a></li>
                         <li class="nav-item"><a class="nav-link" onclick="showSection('attendance', this)">📅 Attendance Log</a></li>
                         <li class="nav-item"><a class="nav-link" onclick="showSection('payments', this)">💰 Payment History</a></li>

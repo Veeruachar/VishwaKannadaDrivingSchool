@@ -81,6 +81,7 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav d-md-none me-auto mb-3">
                 <li class="nav-item"><a class="nav-link" th:href="@{/register}">Student Registration</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/viewAllStudents}">View All Students</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/export/excel}">Download Excel Data</a></li>
                 <li class="nav-item"><a class="nav-link text-danger fw-bold" th:href="@{/logout}">Secure Logout</a></li>
             </ul>
@@ -112,6 +113,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/register}" id="nav-reg">Register Student</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/viewAllStudents}" >View All Students</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/export/excel}">Export to Excel</a>

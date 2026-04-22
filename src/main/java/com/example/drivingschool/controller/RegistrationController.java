@@ -16,6 +16,10 @@ import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -31,6 +35,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -49,15 +54,49 @@ public class RegistrationController {
     private SmsService smsService;
 
     @GetMapping("/")
-    public String showIndexPage() {
+    public String showIndexPage(Model model) {
+        List<Registration> allRegistrations = registrationRepository.findAll();
+
+        LocalDate today = LocalDate.now();
+
+        List<Registration> filteredListCurrentMonth = allRegistrations.stream()
+                .filter(reg -> reg.getAdmissionDate() != null)
+                .filter(reg -> reg.getAdmissionDate().getMonth() == today.getMonth() &&
+                        reg.getAdmissionDate().getYear() == today.getYear())
+                .collect(Collectors.toList());
+
+        model.addAttribute("totalNumberOfStudents", allRegistrations.size());
+        model.addAttribute("admissionThisMonth", filteredListCurrentMonth.size());
+
         return "index";
     }
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         log.info("registration get request");
+
         model.addAttribute("registration", new Registration());
         return "registration_form";
+    }
+
+    @GetMapping("/viewAllStudents")
+    public String viewAllStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        log.info("Accessing Student Directory - Page: {}, Size: {}", page, size);
+
+        // 1. Define the sort and page request
+        Pageable pageable = PageRequest.of(page, size, Sort.by("firstName").ascending());
+
+        // 2. Fetch the actual paginated data
+        Page<Registration> studentPage = registrationRepository.findAll(pageable);
+
+        // 3. CRITICAL: This attribute name 'students' MUST match the HTML th:if
+        model.addAttribute("students", studentPage);
+
+        return "view_all_students";
     }
 
     @PostMapping("/register")
